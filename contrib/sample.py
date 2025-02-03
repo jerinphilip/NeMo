@@ -3,17 +3,26 @@ import argparse
 import soundfile as sf
 import nemo.collections.asr as nemo_asr
 
+
+def count_params(params):
+    return sum(p.numel() for p in params if p.requires_grad)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--model_path", type=str, default="", help="Path to model", required=True
+        "--model-path", type=str, default="", help="Path to model", required=True
     )
     parser.add_argument(
-        "--lang_id", type=str, default="", help="Language ID", required=True
+        "--lang-id", type=str, default="", help="Language ID", required=True
     )
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = nemo_asr.models.EncDecCTCModel.restore_from(restore_path=args.model_path)
+
+    print(model)
+    print("model parameters: ", count_params(model.parameters()))
+
     model.eval()  # inference mode
     model = model.to(device)  # transfer model to device
 
